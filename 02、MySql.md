@@ -1,8 +1,8 @@
 # MySql篇
 
-### 基本语法
+## 基本语法
 
-#### 查询
+### 查询
 
 - 查询多个字段
 
@@ -146,4 +146,52 @@ FROM
 [GROUP BY 分组列] -- 分组
 [HAVING 分组后的过滤条件] -- 对分组后的结果进行过滤
 [ORDER BY 排序列]; -- 排序
+```
+
+
+### 插入数据
+
+向表中插入新记录。
+
+```sql
+-- 指定列名插入
+INSERT INTO table_name (column1, column2, column3)
+VALUES (value1, value2, value3);
+
+-- 为所有列插入，可省略列名
+INSERT INTO table_name
+VALUES (value1, value2, value3, ...);
+
+-- 插入多条数据
+INSERT INTO table_name (column1, column2)
+VALUES (value1, value2), (value3, value4), (value5, value6);
+```
+
+### `UPDATE` - 更新数据
+
+修改表中现有的记录。
+
+```sql
+UPDATE table_name
+SET column1 = value1, column2 = value2, ...
+WHERE condition; -- 警告：没有 WHERE 子句会更新所有行！
+
+-- 示例：将特定客户的电话号码更新
+UPDATE customers
+SET phone = '123-456-7890'
+WHERE customer_id = 100;
+```
+
+### `DELETE` - 删除数据
+
+从表中删除记录。
+
+```sql
+DELETE FROM table_name WHERE condition; -- 警告：没有 WHERE 子句会删除所有行！
+
+-- 示例：删除所有已取消的订单
+DELETE FROM orders WHERE status = 'Cancelled';
+
+-- 清空表 (更高效，不可回滚)
+TRUNCATE TABLE table_name;
 ```
