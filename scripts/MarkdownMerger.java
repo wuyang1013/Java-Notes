@@ -8,6 +8,7 @@ public class MarkdownMerger {
     private static final String CUSTOM_HEADER = "# 项目文档\n\n正在完善中~~~敬请期待！\n\n";
     private static final String SUMMARY_FILENAME = "00、汇总.md";
     private static final String README_FILENAME = "README.md";
+    private static final String CHARSET = "UTF-8"; // 设置编码为UTF-8
     
     // 获取项目根目录的路径
     private static final Path ROOT_DIR = Paths.get("..").toAbsolutePath().normalize();
@@ -68,8 +69,8 @@ public class MarkdownMerger {
                 String filename = file.getFileName().toString();
                 System.out.println("处理文件: " + filename);
                 
-                // 读取文件内容
-                String content = Files.readString(file);
+                // 读取文件内容（使用UTF-8编码）
+                String content = readFileWithEncoding(file, CHARSET);
                 
                 // 提取文件标题（假设第一行是标题）
                 String title = extractTitle(content, filename);
@@ -105,15 +106,12 @@ public class MarkdownMerger {
                 }
             }
             
-            // 4. 写入汇总文档到项目根目录
+            // 4. 写入汇总文档到项目根目录（使用UTF-8编码）
             Path summaryPath = ROOT_DIR.resolve(SUMMARY_FILENAME);
-            Files.write(summaryPath, 
-                       summaryContent.toString().getBytes(), 
-                       StandardOpenOption.CREATE, 
-                       StandardOpenOption.TRUNCATE_EXISTING);
+            writeFileWithEncoding(summaryPath, summaryContent.toString(), CHARSET);
             System.out.println("已生成汇总文档: " + summaryPath);
             
-            // 5. 生成README.md到项目根目录
+            // 5. 生成README.md到项目根目录（使用UTF-8编码）
             StringBuilder readmeContent = new StringBuilder();
             readmeContent.append(CUSTOM_HEADER);
             
@@ -130,15 +128,34 @@ public class MarkdownMerger {
             }
             
             Path readmePath = ROOT_DIR.resolve(README_FILENAME);
-            Files.write(readmePath, 
-                       readmeContent.toString().getBytes(), 
-                       StandardOpenOption.CREATE, 
-                       StandardOpenOption.TRUNCATE_EXISTING);
+            writeFileWithEncoding(readmePath, readmeContent.toString(), CHARSET);
             System.out.println("已生成README文档: " + readmePath);
             
         } catch (Exception e) {
             System.err.println("处理过程中出现错误: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+    
+    // 使用指定编码读取文件
+    private static String readFileWithEncoding(Path filePath, String charset) throws IOException {
+        try (InputStreamReader reader = new InputStreamReader(
+                new FileInputStream(filePath.toFile()), charset)) {
+            StringBuilder content = new StringBuilder();
+            char[] buffer = new char[1024];
+            int bytesRead;
+            while ((bytesRead = reader.read(buffer)) != -1) {
+                content.append(buffer, 0, bytesRead);
+            }
+            return content.toString();
+        }
+    }
+    
+    // 使用指定编码写入文件
+    private static void writeFileWithEncoding(Path filePath, String content, String charset) throws IOException {
+        try (OutputStreamWriter writer = new OutputStreamWriter(
+                new FileOutputStream(filePath.toFile()), charset)) {
+            writer.write(content);
         }
     }
     
