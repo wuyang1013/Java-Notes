@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Maven项目对象模型(POM)配置文件，用于定义项目构建配置 -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!-- Maven模型版本，固定值为4.0.0 -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 父项目配置，继承Spring Boot的默认配置 -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.4.9</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <!-- 项目基本信息 -->
+    <groupId>com.wuyang</groupId>  <!-- 项目组ID -->
+    <artifactId>demo</artifactId>  <!-- 项目构件ID -->
+    <version>0.0.1-SNAPSHOT</version>  <!-- 项目版本 -->
+    <name>demo</name>  <!-- 项目名称 -->
+    <description>demo</description>  <!-- 项目描述 -->
+    <url/>  <!-- 项目URL -->
+    <packaging>pom</packaging> <!-- 添加packaging为pom，标识这是一个父项目 -->
+
+    <!-- 模块定义 -->
+    <modules>
+        <module>demo-CustomAnnotation</module>
+    </modules>
+
+    <!-- 项目许可证信息 -->
+    <licenses>
+        <license/>
+    </licenses>
+
+    <!-- 项目开发者信息 -->
+    <developers>
+        <developer/>
+    </developers>
+
+    <!-- 项目源码管理配置 -->
+    <scm>
+        <connection/>
+        <developerConnection/>
+        <tag/>
+        <url/>
+    </scm>
+
+    <!-- 项目属性配置 -->
+    <properties>
+        <java.version>17</java.version>  <!-- 指定Java版本为17 -->
+        <mysql.version>8.0.33</mysql.version>
+        <mybatis-plus.version>3.5.14</mybatis-plus.version>
+        <mybatis-spring.version>3.0.3</mybatis-spring.version>
+    </properties>
+
+    <!-- 依赖管理 -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- MySQL数据库连接器依赖，用于建立与MySQL数据库的连接 -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+
+            <!-- MyBatis-Plus Spring Boot Starter依赖，用于简化MyBatis操作，提供通用Mapper和分页插件等功能 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            
+            <!-- 添加mybatis-spring依赖解决Spring Boot 3.2+版本兼容性问题 -->
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis-spring</artifactId>
+                <version>${mybatis-spring.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- 项目依赖配置 -->
+    <dependencies>
+        <!-- Spring Boot核心starter，包含自动配置、日志和YAML支持 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Web Starter依赖，用于构建Web应用程序，包括RESTful服务和Spring MVC -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Spring Boot测试starter，包含JUnit、Hamcrest和Mockito等测试框架 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>  <!-- 测试作用域，只在测试编译和执行阶段有效 -->
+        </dependency>
+
+        <!-- MySQL数据库连接器依赖，用于建立与MySQL数据库的连接 -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
+        <!-- 添加Spring JDBC依赖以解决DaoSupport类缺失问题 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+        </dependency>
+
+        <!-- MyBatis-Plus Spring Boot Starter依赖，用于简化MyBatis操作，提供通用Mapper和分页插件等功能 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+        </dependency>
+
+        <!-- 添加mybatis-spring依赖解决Spring Boot 3.2+版本兼容性问题 -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+        </dependency>
+
+        <!-- Lombok依赖，用于简化Java代码，通过注解自动生成getter、setter、toString等方法 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
+
+    <!-- 项目构建配置 -->
+    <build>
+        <plugins>
+            <!-- Spring Boot Maven插件，提供打包和运行Spring Boot应用的功能 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

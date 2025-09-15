@@ -1,1 +1,12 @@
 scripts/*.class
+demo/demo-java-notes/.idea/.gitignore
+demo/demo-java-notes/.idea/compiler.xml
+demo/demo-java-notes/.idea/data_source_mapping.xml
+demo/demo-java-notes/.idea/dataSources.xml
+demo/demo-java-notes/.idea/demo-java-notes.iml
+demo/demo-java-notes/.idea/encodings.xml
+demo/demo-java-notes/.idea/jarRepositories.xml
+demo/demo-java-notes/.idea/misc.xml
+demo/demo-java-notes/.idea/vcs.xml
+demo/demo-java-notes/demo-CustomAnnotation/.mvn/wrapper/maven-wrapper.properties
+demo/demo-java-notes/demo-CustomAnnotation/.gitignore
