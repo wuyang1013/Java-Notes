@@ -17,14 +17,13 @@ import java.util.List;
  *
  * @since 1.0
  */
-@Aspect
+@Aspect     //声明这是一个Aspect切面类，用于定义切面逻辑
 @Component
 public class CustomAnnotationAspect {
-
     /**
      * 环绕通知，处理带有CustomAnnotation注解的方法
      *
-     * @param joinPoint 切点
+     * @param joinPoint  切点
      * @param annotation 注解
      * @return 处理后的结果
      * @throws Throwable 异常

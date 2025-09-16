@@ -59,6 +59,163 @@ public @interface MyAnnotation {
 * **如果注解只有一个属性** ，通常将其命名为 `value`。这样在使用时可以直接写 `@MyAnnotation("something")`，而不用写 `@MyAnnotation(value = "something")`。
 * **使用 `default` 关键字可以为属性指定默认值** 。
 
+## 自定义注解
+
+### **1. 定义自定义注解**
+
+自定义注解通过 `@interface` 关键字定义，并使用元注解（如 `@Retention`、`@Target`）配置其行为。
+
+#### **1.1 基本语法**
+
+```java
+import java.lang.annotation.*;
+@Retention(RetentionPolicy.RUNTIME)  // 保留策略：运行时
+@Target({ElementType.METHOD, ElementType.TYPE})  // 应用于方法和类
+@Documented  // 是否生成 Javadoc 文档
+public @interface MyAnnotation {
+    String value() default "default";  // 注解属性
+    int count() default 0;
+}
+```
+
+
+#### **1.2 元注解说明**
+
+* **`@Retention`** ：定义注解的生命周期。
+* `RetentionPolicy.SOURCE`：仅保留在源代码中（编译时丢弃）。
+* `RetentionPolicy.CLASS`：保留在 class 文件中，但不被虚拟机保留。
+* `RetentionPolicy.RUNTIME`：保留在运行时，可通过反射读取（常用）。
+* **`@Target`** ：定义注解的适用范围。
+* `ElementType.TYPE`：类、接口、枚举。
+* `ElementType.METHOD`：方法。
+* `ElementType.FIELD`：字段。
+* `ElementType.PARAMETER`：方法参数。
+* 等等。
+* **`@Documented`** ：注解是否被包含在 Javadoc 中。
+* **`@Inherited`** ：子类是否继承父类的注解。
+
+### 2.注解的处理
+
+定义注解只是第一步，如何处理它才是关键。主要有三种方式：
+
+1. #### **运行时反射（Reflection）**
+
+
+   * 最基础的方式，通过 `Class`， `Method`， `Field` 等的 `getAnnotation()` 或 `getAnnotations()` 方法获取注解信息。
+   * **优点** ：灵活。
+   * **缺点** ：代码侵入性强，需要手动编写反射逻辑，性能稍差。
+
+   ```java
+   // 处理器示例
+   public void processAnnotation(Object target) {
+       Class<?> clazz = target.getClass();
+       for (Method method : clazz.getMethods()) {
+           if (method.isAnnotationPresent(MyCustomAnnotation.class)) {
+               MyCustomAnnotation annotation = method.getAnnotation(MyCustomAnnotation.class);
+               System.out.println("Found annotation on method: " + method.getName());
+               System.out.println("Value is: " + annotation.value());
+               // ... 执行你的自定义逻辑
+           }
+       }
+   }
+   ```
+2. #### **Spring AOP（面向切面编程） - 最常用**
+
+
+   * 为带有自定义注解的方法创建一个切面（Aspect），通过切入点表达式（Pointcut）匹配注解，然后在通知（Advice）中编写处理逻辑。
+   * **优点** ：非侵入式，逻辑集中，与业务代码完全解耦。
+   * **缺点** ：需要理解 AOP 概念。
+
+   ```java
+   @Aspect
+   @Component
+   public class MyCustomAnnotationAspect {
+
+       // 定义切入点：所有被@MyCustomAnnotation注解的方法
+       @Pointcut("@annotation(com.example.MyCustomAnnotation)")
+       public void pointcut() {}
+
+       // 环绕通知：在方法执行前后处理
+       @Around("pointcut()")
+       public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
+           MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+           Method method = signature.getMethod();
+           MyCustomAnnotation annotation = method.getAnnotation(MyCustomAnnotation.class);
+
+           // 前置逻辑
+           System.out.println("Before method with value: " + annotation.value());
+
+           // 执行原方法
+           Object result = joinPoint.proceed();
+
+           // 后置逻辑
+           System.out.println("After method execution.");
+           return result;
+       }
+   }
+   ```
+3. #### **`BeanPostProcessor` 接口**
+
+
+   * 用于在 Spring Bean 初始化前后进行处理。可以检查类级别（`@Target(ElementType.TYPE)`）的注解。
+   * **优点** ：非常强大，可以在 Bean 生命周期的早期进行干预。
+   * **缺点** ：粒度较粗，通常用于处理类级别的注解。
+
+   ```java
+   @Component
+   public class MyClassAnnotationProcessor implements BeanPostProcessor {
+
+       @Override
+       public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+           Class<?> clazz = bean.getClass();
+           if (clazz.isAnnotationPresent(MyClassLevelAnnotation.class)) {
+               MyClassLevelAnnotation annotation = clazz.getAnnotation(MyClassLevelAnnotation.class);
+               // ... 对Bean进行处理，例如注入一些元数据
+           }
+           return bean;
+       }
+   }
+   ```
+4. #### **`HandlerInterceptor` (拦截器)**
+
+
+   * 主要用于处理 Web 请求，可以拦截带有自定义注解的 Controller 方法。
+   * **优点** ：适合处理Web请求相关的横切关注点（如权限、日志）。
+
+   ```java
+   public class MyAuthInterceptor implements HandlerInterceptor {
+
+       @Override
+       public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+           if (handler instanceof HandlerMethod) {
+               HandlerMethod handlerMethod = (HandlerMethod) handler;
+               // 检查方法上的注解
+               if (handlerMethod.hasMethodAnnotation(RequiresAuth.class)) {
+                   // 执行权限检查逻辑
+                   if (!checkAuth(request)) {
+                       response.sendError(401, "Unauthorized");
+                       return false;
+                   }
+               }
+           }
+           return true;
+       }
+   }
+   ```
+
+   * 别忘了在 WebMvc 配置中注册这个拦截器。
+
+### 总结
+
+| 方面           | 技术选型                             | 说明                           |
+| -------------- | ------------------------------------ | ------------------------------ |
+| **定义** | 元注解 (`@Target`, `@Retention`) | 确定注解作用目标和生命周期     |
+| **处理** | **Spring AOP** (最常用)        | 处理方法级注解，解耦           |
+|                | `BeanPostProcessor`                | 处理类级注解，介入Bean生命周期 |
+|                | `HandlerInterceptor`               | 处理Web请求相关注解            |
+|                | 反射 (Fallback)                      | 灵活但侵入性强                 |
+| **场景** | 日志、权限、缓存、事务等             | 实现声明式编程                 |
+| **注意** | 代理失效、组合注解                   | 常见问题与高级技巧             |
 
 ## Spring mvc
 

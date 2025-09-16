@@ -20,10 +20,5 @@ public class User {
     public List<UserVO> getAllUsers() {
         return userService.getAllUsers();
     }
-    
-    @CustomAnnotation(field = "name", value = "二")
-    @GetMapping("/getFilteredUsers")
-    public List<UserVO> getFilteredUsers() {
-        return userService.getAllUsers();
-    }
+
 }

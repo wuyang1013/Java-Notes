@@ -1,6 +1,7 @@
 package com.wuyang.democustomannotation.domain.vo;
 
 import lombok.Data;
+import org.apache.ibatis.annotations.Result;
 
 /**
  * 视图对象 (VO)
@@ -8,6 +9,10 @@ import lombok.Data;
  */
 @Data
 public class UserVO {
+    /**
+     * 用户ID
+     */
+    private Long id;
     /**
      * 用户名
      */

@@ -16,7 +16,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserVO> getAllUsers() {
-
         return userMapper.getAllUsers();
     }
 }

@@ -25,7 +25,9 @@ import java.lang.annotation.Target;
  * 
  * @since 1.0
  */
+// 指定注解可以应用的目标元素类型为TYPE和METHOD，表示该注解可以用于类、接口或方法上
 @Target({ElementType.TYPE, ElementType.METHOD})
+// 指定注解的保留策略为RUNTIME，表示该注解在运行时仍然有效，可以通过反射机制获取到该注解
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CustomAnnotation {
     /**
@@ -33,10 +35,10 @@ public @interface CustomAnnotation {
      * 默认为空，表示不过滤
      */
     String field() default "";
-    
     /**
      * 指定要过滤掉的值
      * 默认为空，表示不过滤
      */
     String value() default "";
 }
+
