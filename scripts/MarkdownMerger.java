@@ -6,7 +6,7 @@ import java.util.stream.*;
 
 public class MarkdownMerger {
     private static final String CUSTOM_HEADER = "# 项目文档\n\n正在完善中~~~敬请期待！\n\n";
-    private static final String SUMMARY_FILENAME = "00、汇总.md";
+    private static final String SUMMARY_FILENAME = "汇总.md";
     private static final String README_FILENAME = "README.md";
     private static final String CHARSET = "UTF-8"; // 设置编码为UTF-8
     

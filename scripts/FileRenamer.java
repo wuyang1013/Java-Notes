@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,7 +61,7 @@ public class FileRenamer extends JFrame {
         // 添加起始序号输入框
         JPanel startNumberPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         startNumberPanel.add(new JLabel("起始序号:"));
-        startNumberField = new JTextField("1", 3);
+        startNumberField = new JTextField("0", 3);
         startNumberPanel.add(startNumberField);
         
         renameButton = new JButton("开始重命名");
@@ -203,7 +204,7 @@ public class FileRenamer extends JFrame {
         }
         
         // 获取起始序号
-        int startNumber = 1;
+        int startNumber = 0;
         try {
             startNumber = Integer.parseInt(startNumberField.getText().trim());
             if (startNumber < 0) {
@@ -449,7 +450,7 @@ public class FileRenamer extends JFrame {
         }
     }
     
-    // 拖拽排序处理器
+    // 拖拽排序处理器 - 已修复
     class ListItemTransferHandler extends TransferHandler {
         private int[] indices;
         private int addIndex = -1;
@@ -476,9 +477,12 @@ public class FileRenamer extends JFrame {
         @Override
         protected void exportDone(JComponent source, Transferable data, int action) {
             if (action == MOVE && indices != null) {
-                // 删除原位置的项
-                for (int i = indices.length - 1; i >= 0; i--) {
-                    listModel.remove(indices[i]);
+                // 修复：只有在没有成功导入数据时才删除原位置的项
+                // 实际删除操作将在importData中处理
+                if (addIndex == -1) {
+                    for (int i = indices.length - 1; i >= 0; i--) {
+                        listModel.remove(indices[i]);
+                    }
                 }
             }
             
@@ -500,6 +504,7 @@ public class FileRenamer extends JFrame {
             
             JList.DropLocation dl = (JList.DropLocation) info.getDropLocation();
             addIndex = dl.getIndex();
+            boolean isInsert = dl.isInsert();
             
             try {
                 @SuppressWarnings("unchecked")
@@ -508,9 +513,42 @@ public class FileRenamer extends JFrame {
                 
                 addCount = items.size();
                 
+                // 修复：检查是否拖拽到自身位置
+                if (indices != null && indices.length > 0) {
+                    int firstIndex = indices[0];
+                    if (isInsert && addIndex > firstIndex && addIndex <= firstIndex + indices.length) {
+                        // 拖拽到自身范围内，不执行任何操作
+                        addIndex = -1;
+                        return false;
+                    }
+                }
+                
+                // 修复：先删除原位置的项
+                if (indices != null) {
+                    // 从大到小删除，避免索引变化
+                    int[] sortedIndices = indices.clone();
+                    Arrays.sort(sortedIndices);
+                    for (int i = sortedIndices.length - 1; i >= 0; i--) {
+                        int index = sortedIndices[i];
+                        // 检查删除的项是否在插入点之前，如果是则需要调整插入点
+                        if (index < addIndex) {
+                            addIndex--;
+                        }
+                        listModel.remove(index);
+                    }
+                }
+                
+                // 插入到新位置
                 for (FileItem item : items) {
                     listModel.add(addIndex++, item);
                 }
+                
+                // 选中新插入的项
+                int[] newIndices = new int[items.size()];
+                for (int i = 0; i < items.size(); i++) {
+                    newIndices[i] = addIndex - items.size() + i;
+                }
+                fileList.setSelectedIndices(newIndices);
                 
                 return true;
             } catch (Exception e) {
